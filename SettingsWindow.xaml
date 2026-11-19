@@ -1,0 +1,488 @@
+<Window x:Class="LunchBox.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="LunchBox 設定" Height="560" Width="820" MinHeight="460" MinWidth="700"
+        WindowStartupLocation="CenterScreen" FontSize="13">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TabControl x:Name="Tabs" Grid.Row="0">
+            <!-- ===== アプリ ===== -->
+            <TabItem Header="アプリ">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="230"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Margin="0,0,12,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ListBox x:Name="AppList" Grid.Row="0" SelectionChanged="AppList_SelectionChanged" AllowDrop="True"
+                                 PreviewMouseLeftButtonDown="AppList_PreviewMouseLeftButtonDown" PreviewMouseMove="AppList_PreviewMouseMove"
+                                 DragOver="AppList_DragOver" DragLeave="AppList_DragLeave" Drop="AppList_Drop" ToolTip="行をドラッグすると並べ替えできます">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                        <Image Source="{Binding Icon}" Width="18" Height="18" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <WrapPanel Grid.Row="1" Margin="0,8,0,0">
+                            <Button Content="追加" Width="60" Height="26" Margin="0,0,6,0" Click="AddApp_Click" ToolTip="exe やショートカットのファイルを選んで追加"/>
+                            <Button Content="一覧から" Width="70" Height="26" Margin="0,0,6,0" Click="AddFromAppList_Click" ToolTip="Windows の「すべてのアプリ」から選んで追加（ペイント等のストアアプリも可）"/>
+                            <Button Content="削除" Width="60" Height="26" Margin="0,0,6,0" Click="RemoveApp_Click"/>
+                            <Button Content="▲" Width="32" Height="26" Margin="0,0,4,0" Click="AppUp_Click"/>
+                            <Button Content="▼" Width="32" Height="26" Click="AppDown_Click"/>
+                        </WrapPanel>
+                    </Grid>
+
+                    <Grid Grid.Column="1" x:Name="AppDetail" IsEnabled="False">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="表示名" VerticalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AppNameBox" Height="26" Margin="0,0,0,8" VerticalContentAlignment="Center"
+                                 TextChanged="AppNameBox_TextChanged"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="起動するもの" VerticalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AppExeBox" Height="26" Margin="0,0,6,8" VerticalContentAlignment="Center"
+                                 TextChanged="AppExeBox_TextChanged"/>
+                        <Button Grid.Row="1" Grid.Column="2" Content="参照..." Width="70" Height="26" Margin="0,0,0,8" Click="BrowseExe_Click"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="アイコン" VerticalAlignment="Center" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border BorderBrush="#CCCCCC" BorderThickness="1" Width="40" Height="40" Margin="0,0,8,0">
+                                <Image x:Name="AppIconPreview" Width="32" Height="32"/>
+                            </Border>
+                            <Button Content="変更..." Width="70" Height="26" Margin="0,0,6,0" VerticalAlignment="Center" Click="ChangeAppIcon_Click"/>
+                            <Button Content="自動に戻す" Width="90" Height="26" VerticalAlignment="Center" Click="ResetAppIcon_Click"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="履歴の取得元" VerticalAlignment="Center" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
+                            <ComboBox x:Name="AppSourceBox" Width="180" Height="26" SelectionChanged="AppSourceBox_SelectionChanged">
+                                <ComboBoxItem Content="なし（手動登録のみ）"/>
+                                <ComboBoxItem Content="Excel の最近使ったファイル"/>
+                                <ComboBoxItem Content="Word の最近使ったファイル"/>
+                                <ComboBoxItem Content="PowerPoint の最近使ったファイル"/>
+                                <ComboBoxItem Content="エクスプローラーで開いたフォルダ"/>
+                                <ComboBoxItem Content="Chrome の閲覧履歴"/>
+                                <ComboBoxItem Content="Windows の最近使った項目（汎用）"/>
+                            </ComboBox>
+                            <TextBlock Text="「汎用」＝ジャンプリスト＋最近使った項目から拾う" Foreground="Gray" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <Button Content="このアプリの履歴をクリア" Height="26" Padding="8,0" Margin="12,0,0,0" Click="ClearAppHistory_Click"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="ジャンプリストID" VerticalAlignment="Center" Margin="0,0,0,8"/>
+                        <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBox x:Name="AppAumidBox" Width="260" Height="26" VerticalContentAlignment="Center" TextChanged="AppAumidBox_TextChanged"/>
+                            <TextBlock Text="（任意。汎用で履歴が拾えないときに AppUserModelID を指定）" Foreground="Gray" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="メニューの動き" VerticalAlignment="Top" Margin="0,2,0,8"/>
+                        <StackPanel Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,8">
+                            <CheckBox x:Name="DirectLaunchBox" Content="サブメニュー（グループ）を作らず、クリックでこのアプリ／ショートカットを起動する"
+                                      Checked="DirectLaunchBox_Changed" Unchecked="DirectLaunchBox_Changed"/>
+                            <TextBlock x:Name="DirectLaunchNote" Foreground="Gray" Margin="20,2,0,0" TextWrapping="Wrap"
+                                       Text="ピン留めも「最近」の履歴も無いアプリは、チェックが無くても自動でこの動きになります。"/>
+                            <CheckBox x:Name="RunAsAdminBox" Content="管理者として実行する（起動時に UAC の確認が出ます）" Margin="0,8,0,0"
+                                      Checked="RunAsAdminBox_Changed" Unchecked="RunAsAdminBox_Changed"/>
+                            <TextBlock x:Name="RunAsAdminNote" Foreground="Gray" Margin="20,2,0,0" TextWrapping="Wrap"
+                                       Text="ストアアプリ（ペイント・電卓など）は管理者実行できないため、この設定は無視されます。"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Foreground="Gray" TextWrapping="Wrap" VerticalAlignment="Bottom"
+                                   Text="メニューでアプリ名にカーソルを合わせるとピン留めと最近の一覧が開きます。アプリの起動はサブメニューの「このアプリを起動」から。"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- ===== ピン留め ===== -->
+            <TabItem Header="ピン留め" x:Name="PinsTab">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="PinAppList" Grid.Column="0" Margin="0,0,12,0" SelectionChanged="PinAppList_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="2">
+                                    <Image Source="{Binding Icon}" Width="18" Height="18" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="PinList" Grid.Row="0" AllowDrop="True"
+                                  DragOver="PinList_DragOver" DragLeave="PinList_DragLeave" Drop="PinList_Drop"
+                                  PreviewMouseLeftButtonDown="PinList_PreviewMouseLeftButtonDown"
+                                  PreviewMouseMove="PinList_PreviewMouseMove"
+                                  MouseDoubleClick="PinList_MouseDoubleClick">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="34">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Image Source="{Binding Icon}" Width="18" Height="18"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="ラベル" Width="170" DisplayMemberBinding="{Binding Label}"/>
+                                    <GridViewColumn Header="種類" Width="60" DisplayMemberBinding="{Binding KindText}"/>
+                                    <GridViewColumn Header="ショートカット先" Width="260" DisplayMemberBinding="{Binding Target}"/>
+                                    <GridViewColumn Header="状態" Width="120" DisplayMemberBinding="{Binding StatusText}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <WrapPanel Grid.Row="1" Margin="0,8,0,0">
+                            <Button Content="ファイルを追加..." Height="26" Padding="8,0" Margin="0,0,6,6" Click="AddFile_Click"/>
+                            <Button Content="フォルダを追加..." Height="26" Padding="8,0" Margin="0,0,6,6" Click="AddFolder_Click"/>
+                            <Button Content="URLを追加..." Height="26" Padding="8,0" Margin="0,0,6,6" Click="AddUrl_Click"/>
+                            <Button Content="編集..." Width="70" Height="26" Margin="0,0,6,6" Click="EditPin_Click"/>
+                            <Button Content="削除" Width="60" Height="26" Margin="0,0,6,6" Click="RemovePin_Click"/>
+                            <Button Content="▲" Width="32" Height="26" Margin="0,0,4,6" Click="PinUp_Click"/>
+                            <Button Content="▼" Width="32" Height="26" Margin="0,0,12,6" Click="PinDown_Click"/>
+                            <Button Content="全件リンク確認" Height="26" Padding="8,0" Margin="0,0,0,6" Click="CheckAllPins_Click"/>
+                        </WrapPanel>
+                        <TextBlock Grid.Row="2" Foreground="Gray" Text="ファイル・フォルダ・ブラウザのアドレスバーの URL を一覧にドラッグ＆ドロップしても登録できます。一覧の行をドラッグすると並べ替えできます。"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- ===== ウインドウ配置 ===== -->
+            <TabItem Header="ウインドウ配置">
+                <StackPanel Margin="14">
+                    <TextBlock Text="画面の構成（モニタの台数・機種・並び）ごとに、ウインドウの配置を覚えます。" Foreground="Gray" TextWrapping="Wrap"/>
+                    <CheckBox x:Name="LayoutAutoRecordBox" Content="ウインドウ配置を自動で記録する（「直前の配置に戻す」に使う）" Margin="0,12,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="モニタをつなぎ直したとき：" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="LayoutAutoRestoreBox" Width="260" Height="26">
+                            <ComboBoxItem Content="自動で直前の配置に戻す"/>
+                            <ComboBoxItem Content="通知だけ出す"/>
+                            <ComboBoxItem Content="何もしない"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <CheckBox x:Name="LayoutLaunchMissingBox" Margin="0,14,0,0"
+                              Content="記録したときに開いていたアプリが閉じていたら、起動して配置する"/>
+                    <TextBlock Margin="20,4,0,0" Foreground="Gray" TextWrapping="Wrap"
+                               Text="自分で呼び出したとき（セーブの呼び出し・直前の配置に戻す）だけ起動します。つなぎ直したときの自動復元では起動しません。起動するのはアプリ本体だけで、開いていたファイルやタブは戻りません。管理者権限で動いていたアプリは起動しません。"/>
+                    <TextBlock Text="ホットキー（割り当てなしでも、メニューの「ウインドウ配置」から使えます）" Margin="0,18,0,6"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="直前の配置に戻す" Width="170" VerticalAlignment="Center"/>
+                        <TextBox x:Name="LayoutRestoreKeyBox" Width="200" Height="26" VerticalContentAlignment="Center" IsReadOnly="True"
+                                 InputMethod.IsInputMethodEnabled="False"
+                                 GotFocus="LayoutKeyBox_GotFocus" LostFocus="LayoutKeyBox_LostFocus" PreviewKeyDown="LayoutKeyBox_PreviewKeyDown"/>
+                        <Button Content="割り当てなし" Width="96" Height="26" Margin="8,0,0,0" Click="LayoutRestoreKeyClear_Click"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="先頭のセーブを呼び出す" Width="170" VerticalAlignment="Center"/>
+                        <TextBox x:Name="LayoutRecallKeyBox" Width="200" Height="26" VerticalContentAlignment="Center" IsReadOnly="True"
+                                 InputMethod.IsInputMethodEnabled="False"
+                                 GotFocus="LayoutKeyBox_GotFocus" LostFocus="LayoutKeyBox_LostFocus" PreviewKeyDown="LayoutKeyBox_PreviewKeyDown"/>
+                        <Button Content="割り当てなし" Width="96" Height="26" Margin="8,0,0,0" Click="LayoutRecallKeyClear_Click"/>
+                    </StackPanel>
+                    <TextBlock Margin="0,18,0,0" Foreground="Gray" TextWrapping="Wrap"
+                               Text="セーブ・呼び出し・上書き・名前の変更・削除は、メニューの「ウインドウ配置」から行います。"/>
+                </StackPanel>
+            </TabItem>
+
+            <!-- ===== 通知 ===== -->
+            <TabItem Header="通知">
+                <StackPanel Margin="14">
+                    <TextBlock TextWrapping="Wrap" Foreground="Gray"
+                               Text="Windows の通知バナー（右下に出る通知）は、ふつうメインモニタに出ます。ここで、別のモニタの右下に出すようにできます。メインモニタの設定は変えません。"/>
+                    <CheckBox x:Name="NotifyEnabledBox" Content="通知バナーの表示先を変える" Margin="0,12,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="20,10,0,0">
+                        <TextBlock Text="表示先" Width="90" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="NotifyModeBox" Width="280" Height="26" SelectionChanged="NotifyModeBox_SelectionChanged">
+                            <ComboBoxItem Content="指定したモニタ"/>
+                            <ComboBoxItem Content="マウスカーソルのあるモニタ"/>
+                            <ComboBoxItem Content="前面のウインドウがあるモニタ"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="20,8,0,0">
+                        <TextBlock Text="モニタ" Width="90" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="NotifyMonitorBox" Width="280" Height="26" DisplayMemberPath="Label"/>
+                    </StackPanel>
+                    <TextBlock x:Name="NotifyStatusText" Margin="20,12,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Margin="20,12,0,0" Foreground="Gray" TextWrapping="Wrap"
+                               Text="・位置はモニタの右下です（タスクバーには重ねません）。&#10;・指定したモニタが外れているときは、メインモニタに出します。&#10;・オフにしたとき・LunchBox を終了したときは、メインモニタの元の位置へ戻します。&#10;・「マウスカーソル」「前面のウインドウ」は、カーソルや前面のウインドウが別のモニタへ移ったときに付いていきます。&#10;・Windows の内部の仕組みを使っているため、Windows の更新で使えなくなることがあります。うまく動かせないときは自動で止まり、通知はメインモニタに出ます。&#10;・トレイのメニュー「通知を別のモニタに出す」でもオン・オフを切り替えられます。"/>
+                </StackPanel>
+            </TabItem>
+
+            <!-- ===== カレンダー ===== -->
+            <TabItem Header="カレンダー">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="14">
+                    <CheckBox x:Name="CalEnabledBox" Content="年度カレンダーを使う（当年度の4月から3年度ぶんを、モニタいっぱいに重ねて表示）"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="ホットキー" Width="130" VerticalAlignment="Center"/>
+                        <TextBox x:Name="CalKeyBox" Width="200" Height="26" VerticalContentAlignment="Center" IsReadOnly="True"
+                                 InputMethod.IsInputMethodEnabled="False"
+                                 GotFocus="CalKeyBox_GotFocus" LostFocus="CalKeyBox_LostFocus" PreviewKeyDown="CalKeyBox_PreviewKeyDown"/>
+                        <Button Content="既定に戻す" Width="90" Height="26" Margin="8,0,0,0" Click="CalKeyReset_Click"/>
+                        <Button Content="割り当てなし" Width="96" Height="26" Margin="8,0,0,0" Click="CalKeyClear_Click"/>
+                    </StackPanel>
+                    <TextBlock x:Name="CalKeyStatusText" Margin="130,4,0,0" Foreground="Gray" TextWrapping="Wrap"/>
+                    <TextBlock Margin="130,2,0,0" Foreground="Gray" TextWrapping="Wrap"
+                               Text="もう一度押すか、カレンダーの上をクリックすると閉じます。表示中もフォーカスは移りません。"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="表示するモニタ" Width="130" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CalMonitorBox" Width="220" Height="26">
+                            <ComboBoxItem Content="一番右のモニタ"/>
+                            <ComboBoxItem Content="一番左のモニタ"/>
+                            <ComboBoxItem Content="メインのモニタ"/>
+                            <ComboBoxItem Content="カーソルのあるモニタ"/>
+                        </ComboBox>
+                        <TextBlock Text="週の始まり" VerticalAlignment="Center" Margin="24,0,8,0"/>
+                        <ComboBox x:Name="CalWeekStartBox" Width="90" Height="26">
+                            <ComboBoxItem Content="日曜"/>
+                            <ComboBoxItem Content="月曜"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <TextBlock Text="祝日データ（内閣府が公表している国民の祝日）" FontWeight="Bold" Margin="0,18,0,4"/>
+                    <TextBlock x:Name="CalHolidayStatusText" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                        <Button x:Name="CalUpdateNowButton" Content="今すぐ更新" Width="100" Height="26" Click="CalUpdateNow_Click"/>
+                        <TextBlock Text="内閣府のサイトから祝日のCSVを取得するだけで、こちらから情報は送りません。" Foreground="Gray" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
+                    <CheckBox x:Name="CalUpdateOnStartupBox" Content="LunchBox を起動するたびに祝日データを更新する" Margin="0,8,0,0"/>
+                    <CheckBox x:Name="CalAutoUpdateBox" Content="常駐中に月が変わったら自動で更新する" Margin="0,6,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="公表されていない期間の祝日：" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CalProvisionalBox" Width="240" Height="26">
+                            <ComboBoxItem Content="計算値で表示する（薄い色・暫定）"/>
+                            <ComboBoxItem Content="表示しない"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <TextBlock Text="会社休日（年末年始・夏季休暇など）" FontWeight="Bold" Margin="0,18,0,4"/>
+                    <TextBlock Foreground="Gray" TextWrapping="Wrap"
+                               Text="1行に1件、「日付 名称」で書きます。まとめて貼り付けできます。期間は「2026/12/29～2027/1/3 年末年始休暇」のように書けます。"/>
+                    <TextBox x:Name="CalCompanyBox" Height="96" Margin="0,4,0,0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                             TextWrapping="NoWrap" TextChanged="CalListBox_TextChanged"/>
+                    <TextBlock x:Name="CalCompanyCountText" Foreground="Gray" Margin="0,2,0,0"/>
+
+                    <TextBlock Text="祝日の手動補正（法改正や臨時の祝日への備え）" FontWeight="Bold" Margin="0,16,0,4"/>
+                    <TextBlock Text="祝日として追加する日（「日付 名称」）" Foreground="Gray"/>
+                    <TextBox x:Name="CalAddsBox" Height="52" Margin="0,2,0,0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                             TextChanged="CalListBox_TextChanged"/>
+                    <TextBlock x:Name="CalAddsCountText" Foreground="Gray" Margin="0,2,0,0"/>
+                    <TextBlock Text="祝日から外す日（日付だけ）" Foreground="Gray" Margin="0,6,0,0"/>
+                    <TextBox x:Name="CalRemovesBox" Height="52" Margin="0,2,0,0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                             TextChanged="CalListBox_TextChanged"/>
+                    <TextBlock x:Name="CalRemovesCountText" Foreground="Gray" Margin="0,2,0,8"/>
+                </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===== クリップボード ===== -->
+            <TabItem Header="クリップボード" x:Name="ClipTab">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="170"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="履歴の保持" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                        <CheckBox x:Name="ClipEnabledBox" Content="クリップボードの履歴を保持する（メニューに「クリップボード」を表示）"/>
+                        <CheckBox x:Name="ClipImagesBox" Content="画像も保持する" Margin="0,6,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="最大件数" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="文字" VerticalAlignment="Center"/>
+                        <TextBox x:Name="ClipMaxTextBox" Width="60" Height="26" Margin="6,0,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <TextBlock Text="件（1〜20000）" VerticalAlignment="Center" Margin="6,0,16,0"/>
+                        <TextBlock Text="画像" VerticalAlignment="Center"/>
+                        <TextBox x:Name="ClipMaxImagesBox" Width="60" Height="26" Margin="6,0,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <TextBlock Text="件（1〜2000）" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="メニューの表示件数" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox x:Name="ClipMenuCountBox" Width="60" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <TextBlock Text="件（1〜50。ピン留めと合わせて最大50行。全件は「すべて表示（検索）」で）" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="保存" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,10">
+                        <CheckBox x:Name="ClipPersistBox" Content="再起動後も履歴を残す（ファイルに保存する）"/>
+                        <TextBlock Foreground="Gray" Margin="20,2,0,0" TextWrapping="Wrap"
+                                   Text="OFF にすると LunchBox を終了したときに履歴が消えます。パスワードなどを扱うことが多い場合は OFF をおすすめします。"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="あふれた分" VerticalAlignment="Top" Margin="0,4,0,10"/>
+                    <StackPanel Grid.Row="4" Grid.Column="1" Margin="0,0,0,10">
+                        <CheckBox x:Name="ClipArchiveBox" Content="最大件数を超えて消える分は、捨てずにファイルへ書き出す"/>
+                        <StackPanel Orientation="Horizontal" Margin="20,6,0,0">
+                            <TextBlock Text="書き出し先" VerticalAlignment="Center"/>
+                            <TextBox x:Name="ClipArchiveFolderBox" Width="330" Height="26" Margin="6,0,6,0" VerticalContentAlignment="Center"/>
+                            <Button Content="参照..." Width="70" Height="26" Margin="0,0,6,0" Click="BrowseClipArchive_Click"/>
+                            <Button Content="開く" Width="60" Height="26" Click="OpenClipArchive_Click"/>
+                        </StackPanel>
+                        <TextBlock Foreground="Gray" Margin="20,2,0,0" TextWrapping="Wrap"
+                                   Text="空欄なら %AppData%\LunchBox\clip_archive。文字は月ごとのテキスト（テキスト_YYYY-MM.txt）に日時付きで追記、画像は PNG のまま「画像\YYYY-MM」に保存します。手動のクリア・削除は書き出しません。"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="履歴のクリア" VerticalAlignment="Top" Margin="0,4,0,10"/>
+                    <StackPanel Grid.Row="5" Grid.Column="1" Margin="0,0,0,10">
+                        <WrapPanel>
+                            <Button Content="すべてクリア" Height="26" Padding="8,0" Margin="0,0,6,0" Click="ClearClipsAll_Click"/>
+                            <Button Content="画像のみクリア" Height="26" Padding="8,0" Margin="0,0,6,0" Click="ClearClipsImages_Click"/>
+                            <Button Content="文字のみクリア" Height="26" Padding="8,0" Click="ClearClipsText_Click"/>
+                        </WrapPanel>
+                        <TextBlock x:Name="ClipCountText" Foreground="Gray" Margin="0,4,0,0"/>
+                        <TextBlock Foreground="Gray" Text="ピン留めした項目は残ります。メニューの「クリップボード」内からもクリアできます。" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"
+                               Text="パスワード管理ソフトなどが「履歴に入れない」と指定したコピーは保持しません。履歴の項目をクリックするとクリップボードに戻ります。右クリックでピン留め（定型文として常に上に表示）・削除ができます。"/>
+                </Grid>
+            </TabItem>
+
+            <!-- ===== 全般 ===== -->
+            <TabItem Header="全般">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="170"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="呼び出し方" VerticalAlignment="Top" Margin="0,5,0,10"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox x:Name="HotKeyEnabledBox" Content="使う" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="HotKeyBox" Width="200" Height="26" VerticalContentAlignment="Center" IsReadOnly="True"
+                                 InputMethod.IsInputMethodEnabled="False"
+                                 GotFocus="HotKeyBox_GotFocus" LostFocus="HotKeyBox_LostFocus" PreviewKeyDown="HotKeyBox_PreviewKeyDown"/>
+                        <Button Content="既定に戻す" Width="90" Height="26" Margin="8,0,0,0" Click="ResetHotKey_Click"/>
+                        <TextBlock Text="で開く：" VerticalAlignment="Center" Margin="10,0,4,0"/>
+                        <ComboBox x:Name="HotKeyTargetBox" Width="130" Height="26">
+                            <ComboBoxItem Content="検索ウインドウ"/>
+                            <ComboBoxItem Content="メニュー"/>
+                        </ComboBox>
+                    </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="トレイアイコン：" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="TrayClickBox" Width="300" Height="26">
+                                <ComboBoxItem Content="左クリック＝検索／右クリック＝メニュー"/>
+                                <ComboBoxItem Content="左クリック＝メニュー／右クリック＝検索"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="メニューの「最近」" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="表示" VerticalAlignment="Center" Width="36"/>
+                            <TextBox x:Name="RecentCountBox" Width="60" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                            <TextBlock Text="件（1〜50。ピン留めと合わせて1つのサブメニューに最大50行）" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="保持" VerticalAlignment="Center" Width="36"/>
+                            <TextBox x:Name="HistoryMaxBox" Width="60" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                            <TextBlock Text="件（10〜20000。全件は「すべて表示（検索）」で見られます）" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="ラベルの最大文字数" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox x:Name="MaxLabelBox" Width="60" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <TextBlock Text="文字（10〜80）" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="リンク確認の間隔" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <ComboBox Grid.Row="3" Grid.Column="1" x:Name="LinkCheckBox" Width="160" Height="26" HorizontalAlignment="Left" Margin="0,0,0,10">
+                        <ComboBoxItem Content="起動時のみ" Tag="0"/>
+                        <ComboBoxItem Content="30分ごと" Tag="30"/>
+                        <ComboBoxItem Content="1時間ごと" Tag="60"/>
+                        <ComboBoxItem Content="3時間ごと" Tag="180"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Chrome のプロファイル" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox x:Name="ChromeProfileBox" Width="160" Height="26" VerticalContentAlignment="Center"/>
+                        <TextBlock Text="（履歴・ファビコンの取り先。例: Default, Profile 1）" Foreground="Gray" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="起動" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="5" Grid.Column="1" Margin="0,0,0,10">
+                        <CheckBox x:Name="StartupBox" Content="Windows サインイン時に自動で起動する"/>
+                        <CheckBox x:Name="RunElevatedBox" Content="管理者権限で常駐する（管理者権限で動くアプリのウインドウも隠せる。保存時に UAC の確認が出ます）" Margin="0,6,0,0"/>
+                        <TextBlock Foreground="Gray" Margin="20,2,0,0" TextWrapping="Wrap"
+                                   Text="ON のときはタスク スケジューラ経由で起動するので、次回からは UAC なしで昇格します。LunchBox から開くファイルやアプリは一般権限で起動します（引数付きのピン留めを除く）。エクスプローラーからのドラッグ登録は使えなくなります。"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <CheckBox x:Name="SwitcherEnabledBox" Content="ウインドウ切替（旧 FrontSwitcher）を使う" VerticalAlignment="Center"/>
+                            <Button Content="切替の設定..." Height="26" Padding="8,0" Margin="12,0,0,0" Click="OpenSwitcherSettings_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="履歴" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Content="すべての履歴をクリア" Height="26" Padding="8,0" Click="ClearAllHistory_Click"/>
+                        <TextBlock Text="（収集元に残っている分は次の収集で再び表示されます）" Foreground="Gray" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="PathsText" Foreground="Gray" VerticalAlignment="Bottom" TextWrapping="Wrap"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="保存" Width="90" Height="28" Margin="0,0,8,0" Click="Save_Click"/>
+            <Button Content="キャンセル" Width="90" Height="28" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
+
+
+

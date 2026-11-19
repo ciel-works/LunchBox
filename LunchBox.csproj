@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- タスクトレイ(NotifyIcon)とメニュー(ContextMenuStrip)は WinForms を使う -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationIcon>lunchbox.ico</ApplicationIcon>
+    <AssemblyName>LunchBox</AssemblyName>
+    <RootNamespace>LunchBox</RootNamespace>
+    <Version>1.0.0</Version>
+    <SatelliteResourceLanguages>ja;en</SatelliteResourceLanguages>
+    <!-- WPF は manifest の DPI 設定を使うので、WinForms 側の警告は抑止 -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+    <!-- 常駐アプリなので、速度よりメモリの少なさを優先する GC 設定 -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>false</TieredPGO>
+    <!-- 公開用：ビルドしたPCのフォルダ名・ユーザー名を実行ファイルに残さない -->
+    <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="docs\**" />
+    <Compile Remove="docs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
+    <RuntimeHostConfigurationOption Include="System.GC.RetainVM" Value="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 作業用フォルダ（試験アプリ・試しビルドなど）はビルドに含めない -->
+    <Compile Remove="_work\**" />
+    <EmbeddedResource Remove="_work\**" />
+    <None Remove="_work\**" />
+    <Page Remove="_work\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 年度カレンダー：ビルド時点の内閣府の祝日データ（初回取得前でも動くように同梱） -->
+    <EmbeddedResource Include="Resources\syukujitsu.csv" LogicalName="syukujitsu.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+  </ItemGroup>
+
+</Project>
+

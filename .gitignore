@@ -1,0 +1,18 @@
+# ビルド成果物
+bin/
+obj/
+dist/
+installer/Output/
+*.user
+.vs/
+
+# 公開しないもの（作業メモ・試験用ファイル・設計メモ）
+_memory/
+_work/
+docs/
+
+# ログ・個人設定
+*.log
+real_log.txt
+settings.json
+history.json
