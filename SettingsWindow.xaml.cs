@@ -800,7 +800,7 @@ public partial class SettingsWindow : Window
 
     private void CalKeyReset_Click(object sender, RoutedEventArgs e)
     {
-        _calKey = (HotKeyService.MOD_ALT | HotKeyService.MOD_SHIFT, 0x5A);
+        _calKey = (HotKeyService.MOD_WIN, 0x59);   // Win+Y
         CalKeyBox.Text = LayoutKeyText(_calKey);
     }
 
@@ -888,8 +888,8 @@ public partial class SettingsWindow : Window
 
     private void ResetHotKey_Click(object sender, RoutedEventArgs e)
     {
-        _pendingModifiers = HotKeyService.MOD_CONTROL;
-        _pendingVk = 0x1D;
+        _pendingModifiers = HotKeyService.MOD_ALT | HotKeyService.MOD_SHIFT;
+        _pendingVk = 0x59;   // Alt+Shift+Y
         HotKeyBox.Text = HotKeyText.Format(_pendingModifiers, _pendingVk);
     }
 

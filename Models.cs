@@ -158,9 +158,10 @@ public sealed class AppSettings
 
     public List<AppEntry> Apps { get; set; } = new();
 
-    /// <summary>ホットキー（既定 Ctrl + 無変換）</summary>
-    public uint HotKeyModifiers { get; set; } = HotKeyService.MOD_CONTROL;
-    public uint HotKeyVirtualKey { get; set; } = 0x1D; // VK_NONCONVERT（無変換）
+    /// <summary>メインメニューのホットキー（既定 Alt+Shift+Y。11/19 までは Ctrl+無変換）</summary>
+    // 既定は Alt+Shift+Y（11/19 変更。無変換は日本語キーボード専用で、入力モードが変わることもあるため既定にしない）
+    public uint HotKeyModifiers { get; set; } = HotKeyService.MOD_ALT | HotKeyService.MOD_SHIFT;
+    public uint HotKeyVirtualKey { get; set; } = 0x59; // Y
     public bool HotKeyEnabled { get; set; } = true;
     /// <summary>ホットキーで検索ウインドウを開く（false ならメニュー）</summary>
     public bool HotKeyOpensSearch { get; set; } = true;
@@ -180,9 +181,10 @@ public sealed class AppSettings
 
     // ---- 年度カレンダー ----
     public bool CalendarEnabled { get; set; } = true;
-    /// <summary>既定は Alt+Shift+Z（Alt+無変換は IME のカタカナ入力に切り替わることが多いので、11/16 に既定から外した）</summary>
-    public uint CalendarHotKeyModifiers { get; set; } = HotKeyService.MOD_ALT | HotKeyService.MOD_SHIFT;
-    public uint CalendarHotKeyVirtualKey { get; set; } = 0x5A;
+    /// <summary>年度カレンダーのホットキー（Alt+無変換は IME のカタカナ入力に切り替わることが多いので 11/16 に既定から外し、Alt+Shift+Z を経て 11/19 に Win+Y）</summary>
+    // 既定は Win+Y（11/19 変更）
+    public uint CalendarHotKeyModifiers { get; set; } = HotKeyService.MOD_WIN;
+    public uint CalendarHotKeyVirtualKey { get; set; } = 0x59;
     /// <summary>表示するモニタ：0=一番右 1=一番左 2=メイン 3=カーソルのあるモニタ</summary>
     public int CalendarMonitor { get; set; } = 0;
     public bool CalendarWeekStartsMonday { get; set; } = false;
@@ -205,8 +207,9 @@ public sealed class AppSettings
     /// <summary>呼び出したとき、閉じていたアプリを起動して配置する</summary>
     public bool LayoutLaunchMissing { get; set; } = false;
     /// <summary>ホットキー：直前の配置に戻す（VirtualKey=0 で割り当てなし）</summary>
-    public uint LayoutRestoreHotKeyModifiers { get; set; } = 0;
-    public uint LayoutRestoreHotKeyVirtualKey { get; set; } = 0;
+    // 「直前の配置に戻す」の既定は Alt+Shift+Z（11/19 変更。それまでは割り当てなし）
+    public uint LayoutRestoreHotKeyModifiers { get; set; } = HotKeyService.MOD_ALT | HotKeyService.MOD_SHIFT;
+    public uint LayoutRestoreHotKeyVirtualKey { get; set; } = 0x5A;
     /// <summary>ホットキー：先頭のセーブを呼び出す（VirtualKey=0 で割り当てなし）</summary>
     public uint LayoutRecallHotKeyModifiers { get; set; } = 0;
     public uint LayoutRecallHotKeyVirtualKey { get; set; } = 0;

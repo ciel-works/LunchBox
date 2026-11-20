@@ -57,8 +57,13 @@ internal static class HotKeyText
         if ((mods & ModifierKeys.Alt) != 0) m |= HotKeyService.MOD_ALT;
         if ((mods & ModifierKeys.Shift) != 0) m |= HotKeyService.MOD_SHIFT;
         if ((mods & ModifierKeys.Windows) != 0) m |= HotKeyService.MOD_WIN;
+        // WPF の Keyboard.Modifiers は Win キーを返さないので、キーの状態を直接見る（11/19）
+        if (GetKeyState(0x5B) < 0 || GetKeyState(0x5C) < 0) m |= HotKeyService.MOD_WIN;
         return m;
     }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern short GetKeyState(int vk);
 
     public static (uint modifiers, uint vk) FromWpf(Key key, ModifierKeys mods)
     {
